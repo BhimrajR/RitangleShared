@@ -172,7 +172,7 @@ def get_arrs_from_text():
     unit_cell_vertices = []
     circles = []
 
-    f = open(r"D:\proggraming_adventures\Ritangle\test.txt")
+    f = open(r"test.txt")
     strng = f.read()
     arr = strng.splitlines()
 
@@ -197,6 +197,26 @@ def get_arrs_from_text():
 
     return unit_cell_vertices, circles
 
+def find_q(circles, unit_cell_vertices):
+    circle_A = 0
+    for circle in circles:
+        circle_A += math.pi*(circle[2]**2)*circle[3]
+    
+    polygon_A = 0
+
+    for i in range(-1, len(unit_cell_vertices)-1):
+        point1 = unit_cell_vertices[i]
+        point2 = unit_cell_vertices[i+1]
+
+        x1 = point1[0]
+        y1 = point1[1]
+        x2 = point2[0]
+        y2 = point2[1]
+
+        polygon_A += (x1-x2)*(y1-y2)
+    print(circle_A, polygon_A)
+    return circle_A/polygon_A
+
 def check_if_points_covered(circles, all_points):
     all_points_copy = copy.deepcopy(all_points)
     for circle in circles:
@@ -213,10 +233,11 @@ unit_cell_vertices, circles = get_arrs_from_text()
 internal_points, edge_points, vertex_points, all_points = points_in_cell(unit_cell_vertices)
 no_points = len(all_points)
 
-# bunch of print statements to test stuff, it works i promise
-# print(unit_cell_vertices)
-# print(circles)
-# print(check_if_points_covered(circles, all_points))
+#bunch of print statements to test stuff, it works i promise
+
+print(unit_cell_vertices)
+print(circles)
+print(check_if_points_covered(circles, all_points))
 
 # print("")
 # print(internal_points)
@@ -225,3 +246,4 @@ no_points = len(all_points)
 # print(all_points)
 # print(no_points)
 # print(find_p_numerator(internal_points, edge_points, vertex_points)/find_p_denominator(circles))
+# print(find_q(circles, unit_cell_vertices))
