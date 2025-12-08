@@ -1,6 +1,7 @@
 #this code only works for quadrelaterals
 import copy
 import math
+from gen_circles import *
 
 def get_min_max_x_y(unit_cell_vertices):
     min_x = 1000000
@@ -131,8 +132,8 @@ def points_in_cell(unit_cell_vertices):
                 all_points.append([x, y])
 
     for i in unit_cell_vertices:
-        if i in edge_points:
-            edge_points.remove(i)
+        if list(i) in edge_points:
+            edge_points.remove(list(i))
     
     vertex_points = []
 
@@ -141,13 +142,12 @@ def points_in_cell(unit_cell_vertices):
         y = i[1]
 
         if x%1 == 0 and y%1 == 0:
-            vertex_points.append(i)
-
+            vertex_points.append(list(i))
 
     return internal_points, edge_points, vertex_points, all_points
 
 def find_p_numerator(internal_points, edge_points, vertex_points):
-    return len(internal_points) + 1/2*len(edge_points) + 0.25*len(vertex_points)
+    return len(internal_points) + 0.5*len(edge_points) + 0.25*len(vertex_points)
 
 def points_in_circle(circle, points):
     a = circle[0]
@@ -167,6 +167,11 @@ def find_p_denominator(circles):
     for circle in circles:
         tot += circle[3]
     return tot
+
+def find_p_denominator_mini_circles(circles, internal_minis, edge_minis, vertex_minis):
+    p_denominator = find_p_denominator(circles)
+    p_denominator += len(internal_minis) + len(edge_minis)*0.5 + len(vertex_minis)*0.25
+    return p_denominator
 
 def get_arrs_from_text():
     unit_cell_vertices = []
@@ -214,30 +219,68 @@ def find_q(circles, unit_cell_vertices):
         y2 = point2[1]
 
         polygon_A += (x1-x2)*(y1-y2)
-    print(circle_A, polygon_A)
     return circle_A/polygon_A
 
-def check_if_points_covered(circles, all_points):
+def find_mini_circles(circles, internal_points, edge_points, vertex_points, all_points):
     all_points_copy = copy.deepcopy(all_points)
+    edge_points_copy = copy.deepcopy(edge_points)
+    vertex_points_copy = copy.deepcopy(vertex_points)
+    internal_points_copy = copy.deepcopy(internal_points)
+    
+
     for circle in circles:
         inpoints = points_in_circle(circle, all_points_copy)
         for i in inpoints:
             all_points_copy.remove(i)
-    if len(all_points_copy)==0:
-        return True
-    else:
-        return False
+            if i in internal_points:
+                internal_points_copy.remove(i)
+            elif i in edge_points:
+                edge_points_copy.remove(i)
+            elif i in vertex_points:
+                vertex_points_copy.remove(i)
+    return internal_points_copy, edge_points_copy, vertex_points_copy, all_points_copy
 
-unit_cell_vertices, circles = get_arrs_from_text()
+max = [0, 0]
+R=28
+for R in range(1,100+1):
+    unit_cell_vertices, circles = generate_starting_params(R)
+    internal_points, edge_points, vertex_points, all_points = points_in_cell(unit_cell_vertices)
+    no_points = len(all_points)
 
-internal_points, edge_points, vertex_points, all_points = points_in_cell(unit_cell_vertices)
-no_points = len(all_points)
+    internal_minis, edge_minis, vertex_minis, all_minis = find_mini_circles(circles, internal_points, edge_points, vertex_points, all_points)
 
-#bunch of print statements to test stuff, it works i promise
+    p_numerator = find_p_numerator(internal_points, edge_points, vertex_points)
+    p_denominator = find_p_denominator_mini_circles(circles, internal_minis, edge_minis, vertex_minis)
+    p = p_numerator/p_denominator
 
-print(unit_cell_vertices)
-print(circles)
-print(check_if_points_covered(circles, all_points))
+    if p > max[1]:
+        max = [R, p, p_numerator, p_denominator]
+
+    print(f"done with {R}")
+print(max)
+
+
+
+# # unit_cell_vertices, temp = get_arrs_from_text()
+
+# internal_points, edge_points, vertex_points, all_points = points_in_cell(unit_cell_vertices)
+# print(len(internal_points))
+# # print(f"{internal_points}\n\n{edge_points}\n\n{vertex_points}")
+
+# no_points = len(all_points)
+# # print(no_points)
+
+# # bunch of print statements to test stuff, it works i promise
+
+# # print(unit_cell_vertices)
+# # print(circles)
+
+# internal_minis, edge_minis, vertex_minis, all_minis = find_mini_circles(circles, internal_points, edge_points, vertex_points, all_points)
+# print(len(internal_points))
+# p_numerator = find_p_numerator(internal_points, edge_points, vertex_points)
+# p_denominator = find_p_denominator_mini_circles(circles, internal_minis, edge_minis, vertex_minis)
+# p = p_numerator/p_denominator
+# print(p, p_numerator, p_denominator)
 
 # print("")
 # print(internal_points)
