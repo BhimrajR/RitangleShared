@@ -1,4 +1,5 @@
 from sympy import *
+import math
 
 x, y, r = symbols('x y r')
 
@@ -13,36 +14,35 @@ def devolverEcuacion(x1, y1, r1):
   return eq
 
 def find_r2(circle1, circle2, circle3):
+  # Datos del primer círculo
+  x1 = circle1[0]
+  y1 = circle1[1]
+  r1 = circle1[2]
 
-    # Datos del primer círculo
-    x1 = circle1[0]
-    y1 = circle1[1]
-    r1 = circle1[2]
+  x2 = circle2[0]
+  y2 = circle2[1]
+  r2 = circle2[2]
 
-    x2 = circle2[0]
-    y2 = circle2[1]
-    r2 = circle2[2]
+  x3 = circle3[0]
+  y3 = circle3[1]
+  r3 = circle3[2]
 
-    x3 = circle3[0]
-    y3 = circle3[1]
-    r3 = circle3[2]
+  eq1 = devolverEcuacion(x1, y1, r1)
 
-    eq1 = devolverEcuacion(x1, y1, r1)
+  # Datos del segundo círculo
+  eq2 = devolverEcuacion(x2, y2, r2)
 
-    # Datos del segundo círculo
-    eq2 = devolverEcuacion(x2, y2, r2)
+  # Datos del tercer círculo
+  eq3 = devolverEcuacion(x3, y3, r3)
 
-    # Datos del tercer círculo
-    eq3 = devolverEcuacion(x3, y3, r3)
+  # Resolver el sistema de ecuaciones numéricamente
+  sol = solve((eq1, eq2, eq3), (r, x, y), dict=True)
 
-    # Resolver el sistema de ecuaciones numéricamente
-    sol = solve((eq1, eq2, eq3), (r, x, y), dict=True)
+  for solution in sol:
+      if solution[r] > 0:
+          return solution[x], solution[y], solution[r]
 
-    for solution in sol:
-        if solution[r] > 0:
-            return solution[x], solution[y], solution[r]
-
-def generate_starting_params(R):
+def generate_starting_params_1(R):
   circles = []
 
   r1 = R*5/8
@@ -60,3 +60,31 @@ def generate_starting_params(R):
   unit_cell_vertices = [(0, 0), (0, R), (R*3/2, R), (R*3/2, 0)]
 
   return unit_cell_vertices, circles
+
+def generate_starting_params_general(Rx, Ry):
+  unit_cell_vertices = [(0, 0), (0, Ry/2), (Rx/2, Ry/2), (Rx/2, 0)]
+
+  circles = []
+  
+  r = min([math.sqrt(Rx**2+Ry**2)/4, Rx/2, Ry/2])
+
+  circles.append((0, 0, r, 0.25))
+  circles.append((Rx/2, Ry/2, r, 0.25))
+  return unit_cell_vertices, circles
+
+def generate_wide_circles(Rx, Ry, circles):
+  r = circles[0][2]
+  circle1 = list(find_r2(circles[0], circles[1], (0, Ry, r)))
+  circle2 = (circles[1][0]-circle1[0], 0, circle1[2], 0.5)
+  circle1.append(0.5)
+  circles.append(tuple(circle1))
+  circles.append(circle2)
+  return circles
+
+def generate_narrow_circles(Rx, Ry, circles):
+  r = circles[1][2]
+  circle1 = (0, Ry/2, (Ry-2*r)/2, 0.25)
+  circle2 = (Rx/2, 0, (Rx-2*r)/2, 0.25)
+  circles.append(circle1)
+  circles.append(circle2)
+  return circles

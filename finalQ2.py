@@ -2,6 +2,8 @@
 import copy
 import math
 from gen_circles import *
+import numpy as np
+import matplotlib.pyplot as plt
 
 def get_min_max_x_y(unit_cell_vertices):
     min_x = 1000000
@@ -240,26 +242,49 @@ def find_mini_circles(circles, internal_points, edge_points, vertex_points, all_
                 vertex_points_copy.remove(i)
     return internal_points_copy, edge_points_copy, vertex_points_copy, all_points_copy
 
-max = [0, 0]
-R=28
-for R in range(1,100+1):
-    unit_cell_vertices, circles = generate_starting_params(R)
-    internal_points, edge_points, vertex_points, all_points = points_in_cell(unit_cell_vertices)
-    no_points = len(all_points)
+max = [0, 0, 0]
+x = np.array([])
+y = np.array([])
 
-    internal_minis, edge_minis, vertex_minis, all_minis = find_mini_circles(circles, internal_points, edge_points, vertex_points, all_points)
+for width in range(120,200+1):
+    width = width/100
+    for i in range(1, 100+1):
+        temp = width*i
+        if temp%1 == 0:
+            k = i
+            break
+    
+    for j in range(1, int(100/k)+1):
+        max2 = 0
+        Rx = int(width*k*j)
+        Ry = int(k*j)
+        unit_cell_vertices, circles = generate_starting_params_general(Rx, Ry)
 
-    p_numerator = find_p_numerator(internal_points, edge_points, vertex_points)
-    p_denominator = find_p_denominator_mini_circles(circles, internal_minis, edge_minis, vertex_minis)
-    p = p_numerator/p_denominator
+        circles = generate_wide_circles(Rx, Ry, circles)
 
-    if p > max[1]:
-        max = [R, p, p_numerator, p_denominator]
+        internal_points, edge_points, vertex_points, all_points = points_in_cell(unit_cell_vertices)
+        no_points = len(all_points)
 
-    print(f"done with {R}")
+        internal_minis, edge_minis, vertex_minis, all_minis = find_mini_circles(circles, internal_points, edge_points, vertex_points, all_points)
+
+        p_numerator = find_p_numerator(internal_points, edge_points, vertex_points)
+        p_denominator = find_p_denominator_mini_circles(circles, internal_minis, edge_minis, vertex_minis)
+        p = p_numerator/p_denominator
+        if p>max2:
+            max2 = copy.deepcopy(p)
+        if p > max[2]:
+            max = [Rx, Ry, p, p_numerator, p_denominator, width]
+            max_circles = copy.deepcopy(circles)
+    np.append(x, width)
+    np.append(y, max2)
+    print(f"done with {width}")
+
 print(max)
-
-
+print(max_circles)
+print(edge_points)
+print(vertex_points)
+plt.scatter(x, y)
+plt.show()
 
 # # unit_cell_vertices, temp = get_arrs_from_text()
 
