@@ -246,18 +246,18 @@ max = [0, 0, 0]
 x = np.array([])
 y = np.array([])
 
-width = 1.732
+width = 1.73
 print(width)
 
 print("started search")
-for i in range(1, 1000+1):
+for i in range(1, 100+1):
     temp = width*i
     if temp%1 == 0:
         k = i
         break
-print(1000/k)
+print(100/k)
 
-for j in range(1, int(1000/k)+1):
+for j in range(1, int(100/k)+1):
     max2 = 0
     Rx = int(width*k*j)
     Ry = int(k*j)
@@ -269,20 +269,22 @@ for j in range(1, int(1000/k)+1):
     no_points = len(all_points)
 
     internal_minis, edge_minis, vertex_minis, all_minis = find_mini_circles(circles, internal_points, edge_points, vertex_points, all_points)
+    print(len(internal_minis), len(edge_minis))
 
-    p_numerator = find_p_numerator(internal_points, edge_points, vertex_points)
-    p_denominator = find_p_denominator_mini_circles(circles, internal_minis, edge_minis, vertex_minis)
-    p = p_numerator/p_denominator
-    if p>max2:
-        max2 = copy.deepcopy(p)
-    if p > max[2]:
-        max = [Rx, Ry, p, p_numerator, p_denominator, width]
-        max_circles = copy.deepcopy(circles)
-    np.append(x, j)
-    np.append(y, max2)
-    print(f"done with {j}")
 
-    print(max)
+    # p_numerator = find_p_numerator(internal_points, edge_points, vertex_points)
+    # p_denominator = find_p_denominator_mini_circles(circles, internal_minis, edge_minis, vertex_minis)
+    # p = p_numerator/p_denominator
+    # if p>max2:
+    #     max2 = copy.deepcopy(p)
+    # if p > max[2]:
+    #     max = [Rx, Ry, p, p_numerator, p_denominator, width]
+    #     max_circles = copy.deepcopy(circles)
+    # np.append(x, j)
+    # np.append(y, max2)
+    # print(f"done with {j}")
+
+    # print(max)
 print(max_circles)
 print(edge_points)
 print(vertex_points)
