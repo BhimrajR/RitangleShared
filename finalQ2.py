@@ -246,40 +246,43 @@ max = [0, 0, 0]
 x = np.array([])
 y = np.array([])
 
-for width in range(120,200+1):
-    width = width/100
-    for i in range(1, 100+1):
-        temp = width*i
-        if temp%1 == 0:
-            k = i
-            break
-    
-    for j in range(1, int(100/k)+1):
-        max2 = 0
-        Rx = int(width*k*j)
-        Ry = int(k*j)
-        unit_cell_vertices, circles = generate_starting_params_general(Rx, Ry)
+width = 1.732
+print(width)
 
-        circles = generate_wide_circles(Rx, Ry, circles)
+print("started search")
+for i in range(1, 1000+1):
+    temp = width*i
+    if temp%1 == 0:
+        k = i
+        break
+print(1000/k)
 
-        internal_points, edge_points, vertex_points, all_points = points_in_cell(unit_cell_vertices)
-        no_points = len(all_points)
+for j in range(1, int(1000/k)+1):
+    max2 = 0
+    Rx = int(width*k*j)
+    Ry = int(k*j)
+    unit_cell_vertices, circles = generate_starting_params_general(Rx, Ry)
 
-        internal_minis, edge_minis, vertex_minis, all_minis = find_mini_circles(circles, internal_points, edge_points, vertex_points, all_points)
+    circles = generate_wide_circles(Rx, Ry, circles)
 
-        p_numerator = find_p_numerator(internal_points, edge_points, vertex_points)
-        p_denominator = find_p_denominator_mini_circles(circles, internal_minis, edge_minis, vertex_minis)
-        p = p_numerator/p_denominator
-        if p>max2:
-            max2 = copy.deepcopy(p)
-        if p > max[2]:
-            max = [Rx, Ry, p, p_numerator, p_denominator, width]
-            max_circles = copy.deepcopy(circles)
-    np.append(x, width)
+    internal_points, edge_points, vertex_points, all_points = points_in_cell(unit_cell_vertices)
+    no_points = len(all_points)
+
+    internal_minis, edge_minis, vertex_minis, all_minis = find_mini_circles(circles, internal_points, edge_points, vertex_points, all_points)
+
+    p_numerator = find_p_numerator(internal_points, edge_points, vertex_points)
+    p_denominator = find_p_denominator_mini_circles(circles, internal_minis, edge_minis, vertex_minis)
+    p = p_numerator/p_denominator
+    if p>max2:
+        max2 = copy.deepcopy(p)
+    if p > max[2]:
+        max = [Rx, Ry, p, p_numerator, p_denominator, width]
+        max_circles = copy.deepcopy(circles)
+    np.append(x, j)
     np.append(y, max2)
-    print(f"done with {width}")
+    print(f"done with {j}")
 
-print(max)
+    print(max)
 print(max_circles)
 print(edge_points)
 print(vertex_points)
