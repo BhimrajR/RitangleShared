@@ -1,6 +1,8 @@
 from sympy import *
 import math
 
+
+
 x, y, r = symbols('x y r')
 
 def devolverEcuacion(x1, y1, r1):
@@ -116,15 +118,17 @@ def calculate_circle_1_points(circle):
     x_min, x_max = int(a - r) - 1, int(a)+1
     y_min, y_max = int(b - r) - 1, int(b)+1
 
+    is_a_int = a == int(a)
+    is_b_int = b % 1 == 0
     for x in range(x_min, x_max):
         for y in range(y_min, y_max):
             if (x-a)**2+(y-b)**2<=r**2:
-                if x == int(a) and a == int(a) or y == int(b) and b == int(b):
+                if is_a_int and x == int(a) or is_b_int and y == int(b):
                     edge += 1
                     continue
                 internal += 1
     
-    if a == int(a) and b == int(b): edge -= 1
+    if is_a_int and is_b_int: edge -= 1
     
     return edge, internal
 
@@ -134,11 +138,12 @@ def calculate_circle_2_points(circle):
     
     x_min, x_max = int(a - r), math.ceil(a+r)+1
     y_min, y_max = int(b - r), int(b)+1
-
+    is_b_int = b % 1 == 0
+    print(b)
     for x in range(x_min, x_max):
         for y in range(y_min, y_max):
             if (x-a)**2+(y-b)**2<=r**2:
-                if y == int(b) and b == int(b):
+                if is_b_int and y == int(b):
                     edge += 1
                     continue
                 internal += 1
@@ -187,7 +192,10 @@ def circle_13_tangent(unit_cell, circles):
     r_ratio = circles[3][2] / (circles[1][2] + circles[3][2])
     return (dx * r_ratio + circles[3][0]) % 1 == 0 and (dy * r_ratio + circles[3][1]) % 1 == 0 
 
-
+def make_four_divide_Rx(Rx):
+    while Rx%4 != 0:
+        Rx += 1
+    return Rx
 
 def solve_max_p(width):
     decimal_count = len(str(width).split('.')[1])
@@ -245,12 +253,56 @@ def solve_max_p(width):
 
         print(p)
 
-# Rx, Ry = 36, 25
-# unit_cell = generate_unit_cell(Rx, Ry)
-# circles = generate_inital_circles(Rx, Ry)
-# circle_2_points = calculate_circle_2_points(circles[2])
-# print(circles[2])
-# print(circle_2_points)
+Rx, Ry = 14189, 8192
+print("A")
+unit_cell = generate_unit_cell(Rx, Ry)
 
-solve_max_p(1.73205)
+circles = generate_inital_circles(Rx, Ry)
+print("B")
+vertex_count = calculate_vertex_count(unit_cell)
+edge_count = calculate_edge_count(unit_cell)
+internal_count = calculate_internal_count(unit_cell)
+print(vertex_count, edge_count, internal_count)
+print("C")
+
+circle_0_points = calculate_circle_0_points(circles[0])
+print("Alpha")
+circle_1_points = calculate_circle_1_points(circles[1])
+print("Beta")
+circle_2_points = calculate_circle_2_points(circles[2])
+print("Gamma")
+circle_3_points = calculate_circle_3_points(circles[3])
+print("Delta")
+print(circles)
+print(circle_0_points, circle_1_points, circle_2_points, circle_3_points)
+
+print("D")
+
+total_circles_edge, total_circles_internal = calculate_total_circle_points([circle_0_points, circle_1_points, circle_2_points, circle_3_points])
+
+if circle_01_tangent(unit_cell): total_circles_internal -= 1 
+
+if circle_02_tangent(unit_cell, circles): total_circles_internal -= 1 
+if circle_12_tangent(unit_cell, circles): total_circles_edge -= 1 
+
+if circle_03_tangent(unit_cell, circles): total_circles_edge -= 1 
+if circle_13_tangent(unit_cell, circles): total_circles_internal -= 1 
+
+print("E")
+
+minis_edge, minis_internal = edge_count - total_circles_edge, internal_count - total_circles_internal
+
+p_numerator = 0.25 * vertex_count + 0.5 * edge_count + internal_count
+p_denominator = 1.5 + 0.5 * minis_edge + minis_internal
+
+p = p_numerator / p_denominator
+
+print(minis_edge, minis_internal)
+
+print(unit_cell, internal_count)
+
+print(p)
+
+
+# solve_max_p(1.73205)
 
