@@ -192,7 +192,7 @@ def circle_13_tangent(unit_cell, circles):
 
 def is_in_circle(circle, x, y):
     a, b, r, _ = circle
-    return (x - a) ** 2 + (y - b) ** 2 <= round(r**2, 9)
+    return (x - a) ** 2 + (y - b) ** 2 <= round(r**2, 15)
 
 
 def gather_mini_circles(unit_cell, circles):
@@ -201,7 +201,7 @@ def gather_mini_circles(unit_cell, circles):
 
     for x in range(int(cell_width)+1):
         for y in range(int(cell_height)+1):
-
+            
             if (is_in_circle(circles[0], x, y)):
                 continue
 
@@ -225,12 +225,10 @@ def gather_mini_circles(unit_cell, circles):
             if m!=x: mini_circles.append((m,y,f))
             if n!=y: mini_circles.append((x,n,f))
             if m!=x and n!=y: mini_circles.append((m,n,f))
-
-            mini_circles.append((x,y))
     return mini_circles
             
-
-
+def format_ritangle(number):
+    return f"{format(number, '.5f').rstrip('0').rstrip('.')}"
 
 def solve_max_p(Rx, Ry):
         print((Rx, Ry))
@@ -270,24 +268,55 @@ def solve_max_p(Rx, Ry):
 
         minis_edge, minis_internal = edge_count - total_circles_edge, internal_count - total_circles_internal
 
-        minis_points = gather_mini_circles(unit_cell, circles)
-        with open("minis.txt", "w") as file:
-            for p in minis_points:
-                p_x, p_y, p_f = p
-                file.write(f"{p_x},{p_y},0.00000,{p_f}\n")
-
         p_numerator = 0.25 * vertex_count + 0.5 * edge_count + internal_count
         p_denominator = 1.5 + 0.5 * minis_edge + minis_internal
 
         p = p_numerator / p_denominator
 
+        minis_points = gather_mini_circles(unit_cell, circles)
+
+        experiment_p_num = Rx * Ry
+        experiment_p_den = 6
+        with open("minis.txt", "w") as file:
+            print("MINI POINTS: ", "\n".join([str(x) for x in minis_points]))
+            for x in minis_points:
+                p_x, p_y, p_f = x
+                experiment_p_den += p_f
+                file.write(f"{format_ritangle(p_x)},{format_ritangle(p_y)},0.00000,{format_ritangle(p_f)}\n")
+        print("Scaled P:", (experiment_p_num/experiment_p_den), experiment_p_num, experiment_p_den)
+
+
         print(minis_edge, minis_internal)
         print(unit_cell, internal_count)
 
-        print(p)
+        print(p, p_numerator, p_denominator, 4*p_numerator, 4*p_denominator)
         print(circles)
 
         print("\n\n")
 
-solve_max_p(13775, 7953)
-# solve_max_p(5042, 2911)
+def solve_experiment_p(Rx, Ry):
+        print((Rx, Ry))
+        print("A")
+        unit_cell = generate_unit_cell(Rx, Ry)
+
+        circles = generate_inital_circles(Rx, Ry)
+        print("B")
+
+        minis_points = gather_mini_circles(unit_cell, circles)
+        print("C")
+        experiment_p_num = Rx * Ry
+        experiment_p_den = 6
+        with open("minis.txt", "w") as file:
+            for x in minis_points:
+                p_x, p_y, p_f = x
+                experiment_p_den += p_f
+                file.write(f"{format_ritangle(p_x)},{format_ritangle(p_y)},0.00000,{format_ritangle(p_f)}\n")
+        print("Scaled P:", (experiment_p_num/experiment_p_den), experiment_p_num, experiment_p_den)
+
+        print(circles)
+
+        print("\n\n")
+
+solve_experiment_p(13775, 7953)
+# solve_experiment_p(5042, 2911)
+# solve_experiment_p(26, 15)
