@@ -214,7 +214,17 @@ def gather_mini_circles(unit_cell, circles):
             if (is_in_circle(circles[3], x, y)):
                 continue
 
+            f = 1
+            if y == 0 or x == 0:
+                f = 0.5
+            
+            m = 2*cell_width-x
+            n = 2*cell_height-y
 
+            mini_circles.append((x,y,f))
+            if m!=x: mini_circles.append((m,y,f))
+            if n!=y: mini_circles.append((x,n,f))
+            if m!=x and n!=y: mini_circles.append((m,n,f))
 
             mini_circles.append((x,y))
     return mini_circles
