@@ -1,8 +1,6 @@
 from sympy import *
 import math
 
-
-
 x, y, r = symbols('x y r')
 
 def devolverEcuacion(x1, y1, r1):
@@ -192,18 +190,40 @@ def circle_13_tangent(unit_cell, circles):
     r_ratio = circles[3][2] / (circles[1][2] + circles[3][2])
     return (dx * r_ratio + circles[3][0]) % 1 == 0 and (dy * r_ratio + circles[3][1]) % 1 == 0 
 
-def make_four_divide_Rx(Rx):
-    while Rx%4 != 0:
-        Rx += 1
-    return Rx
+def is_in_circle(circle, x, y):
+    a, b, r, _ = circle
+    return (x - a) ** 2 + (y - b) ** 2 <= round(r**2, 9)
 
-def solve_max_p(width):
-    decimal_count = len(str(width).split('.')[1])
-    width_scale_factor = float_digits(width, decimal_count)
 
-    for i in range(1, 1 + 1):
-        Rx = int(width*width_scale_factor*i)
-        Ry = int(width_scale_factor*i)
+def gather_mini_circles(unit_cell, circles):
+    cell_width, cell_height = unit_cell[2]
+    mini_circles = []
+
+    for x in range(int(cell_width)+1):
+        for y in range(int(cell_height)+1):
+
+            if (is_in_circle(circles[0], x, y)):
+                continue
+
+            if (is_in_circle(circles[1], x, y)):
+                continue
+
+            if (is_in_circle(circles[2], x, y)):
+                continue
+
+            if (is_in_circle(circles[3], x, y)):
+                continue
+
+
+
+            mini_circles.append((x,y))
+    return mini_circles
+            
+
+
+
+def solve_max_p(Rx, Ry):
+        print((Rx, Ry))
         print("A")
         unit_cell = generate_unit_cell(Rx, Ry)
 
@@ -214,7 +234,7 @@ def solve_max_p(width):
         internal_count = calculate_internal_count(unit_cell)
         print(vertex_count, edge_count, internal_count)
         print("C")
-        print((Rx,Ry), int((10**decimal_count)/width_scale_factor))
+
         circle_0_points = calculate_circle_0_points(circles[0])
         print("Alpha")
         circle_1_points = calculate_circle_1_points(circles[1])
@@ -223,8 +243,6 @@ def solve_max_p(width):
         print("Gamma")
         circle_3_points = calculate_circle_3_points(circles[3])
         print("Delta")
-
-
 
         print("D")
 
@@ -242,67 +260,24 @@ def solve_max_p(width):
 
         minis_edge, minis_internal = edge_count - total_circles_edge, internal_count - total_circles_internal
 
+        minis_points = gather_mini_circles(unit_cell, circles)
+        with open("minis.txt", "w") as file:
+            for p in minis_points:
+                p_x, p_y, p_f = p
+                file.write(f"{p_x},{p_y},0.00000,{p_f}\n")
+
         p_numerator = 0.25 * vertex_count + 0.5 * edge_count + internal_count
         p_denominator = 1.5 + 0.5 * minis_edge + minis_internal
 
         p = p_numerator / p_denominator
 
         print(minis_edge, minis_internal)
-
         print(unit_cell, internal_count)
 
         print(p)
+        print(circles)
 
-Rx, Ry = 14189, 8192
-print("A")
-unit_cell = generate_unit_cell(Rx, Ry)
+        print("\n\n")
 
-circles = generate_inital_circles(Rx, Ry)
-print("B")
-vertex_count = calculate_vertex_count(unit_cell)
-edge_count = calculate_edge_count(unit_cell)
-internal_count = calculate_internal_count(unit_cell)
-print(vertex_count, edge_count, internal_count)
-print("C")
-
-circle_0_points = calculate_circle_0_points(circles[0])
-print("Alpha")
-circle_1_points = calculate_circle_1_points(circles[1])
-print("Beta")
-circle_2_points = calculate_circle_2_points(circles[2])
-print("Gamma")
-circle_3_points = calculate_circle_3_points(circles[3])
-print("Delta")
-print(circles)
-print(circle_0_points, circle_1_points, circle_2_points, circle_3_points)
-
-print("D")
-
-total_circles_edge, total_circles_internal = calculate_total_circle_points([circle_0_points, circle_1_points, circle_2_points, circle_3_points])
-
-if circle_01_tangent(unit_cell): total_circles_internal -= 1 
-
-if circle_02_tangent(unit_cell, circles): total_circles_internal -= 1 
-if circle_12_tangent(unit_cell, circles): total_circles_edge -= 1 
-
-if circle_03_tangent(unit_cell, circles): total_circles_edge -= 1 
-if circle_13_tangent(unit_cell, circles): total_circles_internal -= 1 
-
-print("E")
-
-minis_edge, minis_internal = edge_count - total_circles_edge, internal_count - total_circles_internal
-
-p_numerator = 0.25 * vertex_count + 0.5 * edge_count + internal_count
-p_denominator = 1.5 + 0.5 * minis_edge + minis_internal
-
-p = p_numerator / p_denominator
-
-print(minis_edge, minis_internal)
-
-print(unit_cell, internal_count)
-
-print(p)
-
-
-# solve_max_p(1.73205)
-
+solve_max_p(13775, 7953)
+# solve_max_p(5042, 2911)
